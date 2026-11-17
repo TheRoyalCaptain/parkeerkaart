@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Breda · Parkeervergunningzones</title>
+<style>body{margin:0;min-height:100vh;display:grid;place-items:center;font-family:system-ui,sans-serif;background:#eef2f5;color:#18304a;text-align:center;padding:1rem}main{max-width:26rem}h1{font-size:1.4rem}p{line-height:1.5}.indicator{display:block;height:4px;background:linear-gradient(90deg,#1d67db,#29bfa0);border-radius:1rem;margin:1.5rem 2rem;animation:pulse 1s infinite alternate}@keyframes pulse{to{opacity:.2}}</style>
+</head>
+<body><main><h1>Breda · Parkeervergunningzones</h1><p id="status">Interactieve parkeerkaart wordt geladen…</p><span class="indicator" aria-hidden="true"></span></main>
+<script>
+(async function () {
+  const urls = Array.from({ length: 16 }, (_, i) => './site-parts/part' + String(i).padStart(2, '0') + '.txt');
+  const parts = await Promise.all(urls.map(async path => {
+    const response = await fetch(new URL(path, document.baseURI));
+    if (!response.ok) throw new Error('Kan ' + path + ' niet laden: ' + response.status);
+    return await response.text();
+  }));
+  const html = parts.join('');
+  if (!html.startsWith('<!doctype html>') || !html.includes('</script></html>')) {
+    throw new Error('Onvolledige kaartgegevens ontvangen');
+  }
+  document.open();
+  document.write(html);
+  document.close();
+})().catch(error => {
+  document.getElementById('status').textContent = 'De kaart kon niet worden geladen. Vernieuw de pagina of probeer het later opnieuw.';
+  document.querySelector('.indicator').style.display='none';
+  console.error(error);
+});
+</script>
+</body>
+</html>
